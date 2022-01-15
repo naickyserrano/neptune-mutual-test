@@ -10,16 +10,11 @@ const nextConfig = {
   },
   webpack(config) {
     return config
-  }
+  },
 }
 
 const pluginAntdLess = withAntdLess({
-  lessVarsFilePath: './styles/variables.less'
+  lessVarsFilePath: './styles/variables.less',
 })
 
-module.exports = withPlugins(
-  [
-    [pluginAntdLess]
-  ],
-  nextConfig
-)
+module.exports = withPlugins([[pluginAntdLess]], nextConfig)
