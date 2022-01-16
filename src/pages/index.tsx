@@ -34,7 +34,7 @@ const Home: NextPage = () => {
   const [showWalletDetails, setShowWalletDetails] = useState(false)
   const [walletBalance, setWalletBalance] = useState(0)
   const [loadingWalletBalance, setLoadingWalletBalance] = useState(false)
-  console.log('web3React :>> ', web3React)
+
   if (account) {
     // on page load check if there's a account from web3react hook and if yes store it to use for persisting connection
     localStorage.setItem('storedAccount', account)
