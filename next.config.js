@@ -14,6 +14,7 @@ const nextConfig = {
 }
 
 const pluginAntdLess = withAntdLess({
+  // plugin for antd to support less files in order to customize
   lessVarsFilePath: './styles/variables.less',
 })
 

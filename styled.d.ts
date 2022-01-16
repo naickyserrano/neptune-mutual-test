@@ -10,6 +10,8 @@ declare module 'styled-components' {
       title: string
       text: string
       border: string
+      connect: string
+      disconnect: string
     }
   }
 }

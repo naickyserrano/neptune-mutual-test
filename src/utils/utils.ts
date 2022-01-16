@@ -21,5 +21,15 @@ const cryptoConversion = (cryptocurrency: string, value: string): number => {
   // return the converted value and rounded to 2 decimal places which
   // converts it to a string and then converts it back to number again
 }
+const truncateString = (str: string, num: number): string => {
+  // If the length of str is less than or equal to num
+  // just return str--don't truncate it.
+  if (str.length <= num) {
+    return str
+  }
 
-export { cryptoConversion }
+  // Return str truncated with '...' concatenated to the end of str.
+  return `${str.slice(0, num)}...`
+}
+
+export { cryptoConversion, truncateString }

@@ -9,15 +9,38 @@ import {
   Content,
   SwapIconContainer,
   Title,
+  ButtonContainer,
+  WalletContainer,
+  ConnectIcon,
 } from '../styles/pages/home'
-import { Form, Input } from 'antd'
+import { Form, Input, Button, Modal } from 'antd'
 import { SwapOutlined } from '@ant-design/icons'
 import logo from '../../public/images/logo/neptune-mutual.svg'
-import { cryptoConversion } from '../utils/utils'
+import metamaskLogo from '../../public/images/logo/metamask.svg'
+import { cryptoConversion, truncateString } from '../utils/utils'
+import { injectedConnector } from '../components/wallet/connectors'
+import { useWeb3React } from '@web3-react/core'
+import WalletDetails from '../components/WalletDetails'
 
 const Home: NextPage = () => {
+  const web3React = useWeb3React()
+  const { active, account, library, activate, deactivate } = web3React
+  console.log('web3React :>> ', web3React)
   const [fromCryptoCurrency, setFromCryptoCurrency] = useState(0)
   const [toCryptoCurrency, setToCryptoCurrency] = useState(0)
+  const [showWallet, setShowWallet] = useState(false)
+  const [showWalletDetails, setShowWalletDetails] = useState(false)
+
+  async function connectToWallet(): Promise<any> {
+    try {
+      await activate(injectedConnector)
+      handleCancel()
+    } catch (error) {
+      console.log('wallet error :>> ', error)
+    }
+  }
+
+  function getBalance() {}
 
   function handleInputChange(
     e: ChangeEvent<HTMLInputElement>,
@@ -27,12 +50,29 @@ const Home: NextPage = () => {
     const convertedValue = cryptoConversion(type, currentValue) // uses conversion utility to get the converted value
 
     if (type === 'NEP') {
-      // set the current value to current crypto currency, set the converted value to other crypto currency vice versa
+      // set the current value to current crypto currency and vice versa
+      // set the converted value to other crypto currency and vice versa
       setFromCryptoCurrency(Number(currentValue))
       setToCryptoCurrency(convertedValue)
     } else {
       setToCryptoCurrency(Number(currentValue))
       setFromCryptoCurrency(convertedValue)
+    }
+  }
+
+  function handleShowWalletDetails(): void {
+    setShowWalletDetails(true)
+  }
+
+  function handleshowWallet(): void {
+    setShowWallet(true)
+  }
+
+  function handleCancel(): void {
+    if (showWallet) {
+      setShowWallet(false)
+    } else if (showWalletDetails) {
+      setShowWalletDetails(false)
     }
   }
 
@@ -75,12 +115,54 @@ const Home: NextPage = () => {
               />
             </Form.Item>
           </Form>
+          <ButtonContainer>
+            {!active && (
+              <Button type="primary" onClick={handleshowWallet}>
+                Connect to Wallet
+              </Button>
+            )}
+            <p>
+              <ConnectIcon connected={active}></ConnectIcon>
+              {active ? 'Connected with: ' : 'Disconnected '}
+              {truncateString(account || '', 10)}
+            </p>
+            {active && (
+              <a onClick={handleShowWalletDetails}>Check Wallet Details</a>
+            )}
+          </ButtonContainer>
         </Content>
       </Main>
 
       <Footer>
         <p>Neptune Mutual &#169; 2022</p>
       </Footer>
+      <Modal
+        title="Connect to Wallet"
+        visible={showWallet}
+        onCancel={handleCancel}
+        destroyOnClose={true}
+        footer={null}
+      >
+        <WalletContainer onClick={connectToWallet}>
+          <Image
+            src={metamaskLogo}
+            alt="metamask"
+            priority
+            width={30}
+            height={30}
+          />
+          <p>METAMASK</p>
+        </WalletContainer>
+      </Modal>
+      <Modal
+        title="Wallet Details"
+        visible={showWalletDetails}
+        onCancel={handleCancel}
+        destroyOnClose={true}
+        footer={null}
+      >
+        <WalletDetails />
+      </Modal>
     </Container>
   )
 }

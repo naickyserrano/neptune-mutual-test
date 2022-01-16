@@ -39,5 +39,54 @@ const Title = styled.h1`
   font-size: 1.5rem;
   margin: 0 0 1rem;
 `
+const ButtonContainer = styled.div`
+  text-align: center;
 
-export { Container, Main, Footer, SwapIconContainer, Content, Title }
+  > button,
+  p {
+    font-weight: 500;
+    margin: 1.5rem 0 0;
+  }
+
+  a {
+    display: block;
+    font-weight: 500;
+    padding: 0.5rem 0;
+  }
+`
+const WalletContainer = styled.div`
+  align-items: center;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  cursor: pointer;
+  display: flex;
+  padding: 0.5rem;
+
+  > p {
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    margin: 0 1rem;
+  }
+`
+const ConnectIcon = styled.span<{ connected: boolean }>`
+  background-color: ${({ connected, theme }) =>
+    connected ? theme.colors.connect : theme.colors.disconnect};
+  border-radius: 50%;
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+  margin: 0 0.5rem 0 0;
+`
+
+export {
+  Container,
+  Main,
+  Footer,
+  SwapIconContainer,
+  Content,
+  Title,
+  ButtonContainer,
+  WalletContainer,
+  ConnectIcon,
+}
