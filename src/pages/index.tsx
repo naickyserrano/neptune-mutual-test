@@ -34,7 +34,11 @@ const Home: NextPage = () => {
   const [showWalletDetails, setShowWalletDetails] = useState(false)
   const [walletBalance, setWalletBalance] = useState(0)
   const [loadingWalletBalance, setLoadingWalletBalance] = useState(false)
-
+  console.log('web3React :>> ', web3React)
+  if (account) {
+    // on page load check if there's a account from web3react hook and if yes store it to use for persisting connection
+    localStorage.setItem('storedAccount', account)
+  }
   const walletDetailsArray: Array<WalletDetailsArrayInterface> = [
     {
       id: 1,
@@ -53,7 +57,7 @@ const Home: NextPage = () => {
     },
   ]
 
-  async function connectToWallet(): Promise<any> {
+  async function connectToWalletOnClick(): Promise<any> {
     try {
       await activate(injectedConnector)
       handleCancel()
@@ -119,10 +123,28 @@ const Home: NextPage = () => {
   }
 
   function handleDisconnectToWallet(): void {
+    // remove the stored account and disconnect the connection
+    localStorage.removeItem('storedAccount')
     deactivate()
     setWalletBalance(0)
     handleCancel()
   }
+
+  useEffect(() => {
+    const storedAccount = localStorage.getItem('storedAccount')
+
+    async function connectToWalletOnLoad(): Promise<any> {
+      try {
+        await activate(injectedConnector)
+      } catch (error) {
+        console.log('wallet error :>> ', error)
+      }
+    }
+    // check if there's a stored account then connect to wallet to persist the connection
+    if (storedAccount !== null) {
+      connectToWalletOnLoad()
+    }
+  }, [activate])
 
   useEffect(() => {
     getBalance()
@@ -201,7 +223,7 @@ const Home: NextPage = () => {
         destroyOnClose={true}
         footer={null}
       >
-        <WalletContainer onClick={connectToWallet}>
+        <WalletContainer onClick={connectToWalletOnClick}>
           <Image
             src={metamaskLogo}
             alt="metamask"
