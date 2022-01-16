@@ -1,3 +1,4 @@
+import { Button } from 'antd'
 import styled from 'styled-components'
 
 const Container = styled.div`
@@ -38,21 +39,23 @@ const SwapIconContainer = styled.div`
 const Title = styled.h1`
   font-size: 1.5rem;
   margin: 0 0 1rem;
+  text-align: center;
 `
 const ButtonContainer = styled.div`
   text-align: center;
 
-  > button,
-  p {
+  > p {
     font-weight: 500;
     margin: 1.5rem 0 0;
   }
-
-  a {
-    display: block;
-    font-weight: 500;
-    padding: 0.5rem 0;
-  }
+`
+const ConnectToWalletButton = styled(Button)`
+  font-weight: 500;
+  margin: 1.5rem 0 0;
+`
+const CheckWalletDetailsButton = styled(Button)`
+  font-weight: 500;
+  margin: 0.5rem 0;
 `
 const WalletContainer = styled.div`
   align-items: center;
@@ -89,4 +92,6 @@ export {
   ButtonContainer,
   WalletContainer,
   ConnectIcon,
+  ConnectToWalletButton,
+  CheckWalletDetailsButton,
 }

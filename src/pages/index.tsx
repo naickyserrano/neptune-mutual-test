@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useState, useEffect, useCallback } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import {
@@ -12,8 +12,10 @@ import {
   ButtonContainer,
   WalletContainer,
   ConnectIcon,
-} from '../styles/pages/home'
-import { Form, Input, Button, Modal } from 'antd'
+  ConnectToWalletButton,
+  CheckWalletDetailsButton,
+} from '../styles/pages/home-styles'
+import { Form, Input, Spin, Modal } from 'antd'
 import { SwapOutlined } from '@ant-design/icons'
 import logo from '../../public/images/logo/neptune-mutual.svg'
 import metamaskLogo from '../../public/images/logo/metamask.svg'
@@ -21,15 +23,35 @@ import { cryptoConversion, truncateString } from '../utils/utils'
 import { injectedConnector } from '../components/wallet/connectors'
 import { useWeb3React } from '@web3-react/core'
 import WalletDetails from '../components/WalletDetails'
+import { WalletDetailsArrayInterface } from '../interfaces/pages/home-interfaces'
 
 const Home: NextPage = () => {
   const web3React = useWeb3React()
-  const { active, account, library, activate, deactivate } = web3React
-  console.log('web3React :>> ', web3React)
+  const { active, account, chainId, library, activate, deactivate } = web3React
   const [fromCryptoCurrency, setFromCryptoCurrency] = useState(0)
   const [toCryptoCurrency, setToCryptoCurrency] = useState(0)
   const [showWallet, setShowWallet] = useState(false)
   const [showWalletDetails, setShowWalletDetails] = useState(false)
+  const [walletBalance, setWalletBalance] = useState(0)
+  const [loadingWalletBalance, setLoadingWalletBalance] = useState(false)
+
+  const walletDetailsArray: Array<WalletDetailsArrayInterface> = [
+    {
+      id: 1,
+      key: 'Account',
+      value: truncateString(account || '', 20),
+    },
+    {
+      id: 2,
+      key: 'Chain ID',
+      value: chainId,
+    },
+    {
+      id: 3,
+      key: 'Balance',
+      value: walletBalance,
+    },
+  ]
 
   async function connectToWallet(): Promise<any> {
     try {
@@ -40,7 +62,27 @@ const Home: NextPage = () => {
     }
   }
 
-  function getBalance() {}
+  const getBalance = useCallback((): void => {
+    if (library) {
+      setLoadingWalletBalance(true)
+      // make sure library is not undefined
+      return library.eth.getBalance(
+        account,
+        function (error: any, result: number) {
+          // get the balance
+          if (error) {
+            setLoadingWalletBalance(false)
+            console.log('balance error :>> ', error)
+          } else {
+            // get the result and convert to readable format
+            setLoadingWalletBalance(false)
+            const balance = Number(library.utils.fromWei(result))
+            setWalletBalance(balance)
+          }
+        }
+      )
+    }
+  }, [account, library])
 
   function handleInputChange(
     e: ChangeEvent<HTMLInputElement>,
@@ -75,6 +117,16 @@ const Home: NextPage = () => {
       setShowWalletDetails(false)
     }
   }
+
+  function handleDisconnectToWallet(): void {
+    deactivate()
+    setWalletBalance(0)
+    handleCancel()
+  }
+
+  useEffect(() => {
+    getBalance()
+  }, [getBalance])
 
   return (
     <Container>
@@ -117,9 +169,9 @@ const Home: NextPage = () => {
           </Form>
           <ButtonContainer>
             {!active && (
-              <Button type="primary" onClick={handleshowWallet}>
+              <ConnectToWalletButton type="primary" onClick={handleshowWallet}>
                 Connect to Wallet
-              </Button>
+              </ConnectToWalletButton>
             )}
             <p>
               <ConnectIcon connected={active}></ConnectIcon>
@@ -127,7 +179,13 @@ const Home: NextPage = () => {
               {truncateString(account || '', 10)}
             </p>
             {active && (
-              <a onClick={handleShowWalletDetails}>Check Wallet Details</a>
+              <CheckWalletDetailsButton
+                type="link"
+                onClick={handleShowWalletDetails}
+                loading={loadingWalletBalance}
+              >
+                Check Wallet Details
+              </CheckWalletDetailsButton>
             )}
           </ButtonContainer>
         </Content>
@@ -161,7 +219,10 @@ const Home: NextPage = () => {
         destroyOnClose={true}
         footer={null}
       >
-        <WalletDetails />
+        <WalletDetails
+          walletDetailsArray={walletDetailsArray}
+          handleDisconnectToWallet={handleDisconnectToWallet}
+        />
       </Modal>
     </Container>
   )

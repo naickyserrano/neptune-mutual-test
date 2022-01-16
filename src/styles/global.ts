@@ -19,4 +19,8 @@ export default createGlobalStyle`
     input[type=number] {
         -moz-appearance: textfield;
     }
+
+    .ant-table-thead > tr > th {
+        font-size: 12px;
+    }
 `
